@@ -42,8 +42,6 @@ public abstract class TagNodeHandler {
 
 	/**
 	 * Called by HtmlSpanner when this TagNodeHandler is registered.
-	 * 
-	 * @param spanner
 	 */
 	public void setSpanner(HtmlSpanner spanner) {
 		this.spanner = spanner;
@@ -63,9 +61,6 @@ public abstract class TagNodeHandler {
 	 * be inserted before the childrens' text.
 	 * 
 	 * Default implementation is a no-op.
-	 * 
-	 * @param node
-	 * @param builder
 	 */
 	public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
 
@@ -75,8 +70,6 @@ public abstract class TagNodeHandler {
 	 * If this TagNodeHandler takes care of rendering the content.
 	 * 
 	 * If true, the parser will not add the content itself.
-	 * 
-	 * @return
 	 */
 	public boolean rendersContent() {
 		return false;
@@ -104,8 +97,6 @@ public abstract class TagNodeHandler {
 	 * Utility method to append newlines while making sure that there are never
 	 * more than 2 consecutive newlines in the text (if whitespace stripping was
 	 * enabled).
-	 * 
-	 * @param builder
      * @return true if a newline was added
 	 */
 	protected boolean appendNewLine(SpannableStringBuilder builder) {

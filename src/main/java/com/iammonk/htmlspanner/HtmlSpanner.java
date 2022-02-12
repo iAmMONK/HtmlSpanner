@@ -16,23 +16,29 @@
 
 package com.iammonk.htmlspanner;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.HashMap;
-import java.util.Map;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 
 import com.iammonk.htmlspanner.css.CSSCompiler;
 import com.iammonk.htmlspanner.css.CSSParser;
 import com.iammonk.htmlspanner.css.Rule;
 import com.iammonk.htmlspanner.exception.ParsingCancelledException;
-import com.iammonk.htmlspanner.handlers.*;
+import com.iammonk.htmlspanner.handlers.FontHandler;
+import com.iammonk.htmlspanner.handlers.HeaderHandler;
+import com.iammonk.htmlspanner.handlers.ImageHandler;
+import com.iammonk.htmlspanner.handlers.LinkHandler;
+import com.iammonk.htmlspanner.handlers.ListItemHandler;
+import com.iammonk.htmlspanner.handlers.MonoSpaceHandler;
+import com.iammonk.htmlspanner.handlers.NewLineHandler;
+import com.iammonk.htmlspanner.handlers.PreHandler;
+import com.iammonk.htmlspanner.handlers.StyleNodeHandler;
+import com.iammonk.htmlspanner.handlers.StyledTextHandler;
+import com.iammonk.htmlspanner.handlers.SubScriptHandler;
+import com.iammonk.htmlspanner.handlers.SuperScriptHandler;
 import com.iammonk.htmlspanner.handlers.attributes.AlignmentAttributeHandler;
-
 import com.iammonk.htmlspanner.handlers.attributes.BorderAttributeHandler;
 import com.iammonk.htmlspanner.handlers.attributes.StyleAttributeHandler;
 import com.iammonk.htmlspanner.style.Style;
-import com.iammonk.htmlspanner.handlers.StyledTextHandler;
 import com.iammonk.htmlspanner.style.StyleValue;
 
 import org.htmlcleaner.CleanerProperties;
@@ -40,8 +46,11 @@ import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.HtmlCleaner;
 import org.htmlcleaner.TagNode;
 
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * HtmlSpanner provides an alternative to Html.fromHtml() from the Android
@@ -61,11 +70,11 @@ public class HtmlSpanner {
     public static final int HORIZONTAL_EM_WIDTH = 10;
 
 
-    private Map<String, TagNodeHandler> handlers;
+    private final Map<String, TagNodeHandler> handlers;
 
     private boolean stripExtraWhiteSpace = false;
 
-    private HtmlCleaner htmlCleaner;
+    private final HtmlCleaner htmlCleaner;
 
     private FontResolver fontResolver;
 
@@ -91,13 +100,11 @@ public class HtmlSpanner {
      * Creates a new HtmlSpanner using the given HtmlCleaner instance.
      * <p>
      * This allows for a custom-configured HtmlCleaner.
-     *
-     * @param cleaner
      */
     public HtmlSpanner(HtmlCleaner cleaner, FontResolver fontResolver) {
         this.htmlCleaner = cleaner;
         this.fontResolver = fontResolver;
-        this.handlers = new HashMap<String, TagNodeHandler>();
+        this.handlers = new HashMap<>();
 
         registerBuiltInHandlers();
     }
@@ -117,8 +124,6 @@ public class HtmlSpanner {
     /**
      * Switch to specify whether excess whitespace should be stripped from the
      * input.
-     *
-     * @param stripExtraWhiteSpace
      */
     public void setStripExtraWhiteSpace(boolean stripExtraWhiteSpace) {
         this.stripExtraWhiteSpace = stripExtraWhiteSpace;
@@ -126,8 +131,6 @@ public class HtmlSpanner {
 
     /**
      * Returns if whitespace is being stripped.
-     *
-     * @return
      */
     public boolean isStripExtraWhiteSpace() {
         return stripExtraWhiteSpace;
@@ -138,8 +141,6 @@ public class HtmlSpanner {
      * <p>
      * If this is set to false, all CSS is ignored
      * and the basic built-in style is used.
-     *
-     * @return
      */
     public boolean isAllowStyling() {
         return allowStyling;
@@ -147,8 +148,6 @@ public class HtmlSpanner {
 
     /**
      * Switch to specify is CSS style should be used.
-     *
-     * @param value
      */
     public void setAllowStyling(boolean value) {
         this.allowStyling = value;
@@ -157,8 +156,6 @@ public class HtmlSpanner {
     /**
      * Switch to specify if the colours from CSS
      * should override user-specified colours.
-     *
-     * @param value
      */
     public void setUseColoursFromStyle(boolean value) {
         this.useColoursFromStyle = value;
@@ -174,9 +171,6 @@ public class HtmlSpanner {
      * <p>
      * If a TagNodeHandler was already registered for the specified tagName it
      * will be overwritten.
-     *
-     * @param tagName
-     * @param handler
      */
     public void registerHandler(String tagName, TagNodeHandler handler) {
         this.handlers.put(tagName, handler);
@@ -194,8 +188,6 @@ public class HtmlSpanner {
 
     /**
      * Parses the text in the given String.
-     *
-     * @param html
      * @return a Spanned version of the text.
      */
     public Spannable fromHtml(String html) {
@@ -234,10 +226,6 @@ public class HtmlSpanner {
 
     /**
      * Parses the text in the given Reader.
-     *
-     * @param reader
-     * @return
-     * @throws IOException
      */
     public Spannable fromHtml(Reader reader) throws IOException {
         return fromTagNode(this.htmlCleaner.clean(reader), null);
@@ -249,10 +237,6 @@ public class HtmlSpanner {
 
     /**
      * Parses the text in the given InputStream.
-     *
-     * @param inputStream
-     * @return
-     * @throws IOException
      */
     public Spannable fromHtml(InputStream inputStream) throws IOException {
         return fromTagNode(this.htmlCleaner.clean(inputStream), null);
@@ -266,8 +250,6 @@ public class HtmlSpanner {
      * Gets the currently registered handler for this tag.
      * <p>
      * Used so it can be wrapped.
-     *
-     * @param tagName
      * @return the registed TagNodeHandler, or null if none is registered.
      */
     public TagNodeHandler getHandlerFor(String tagName) {
@@ -276,9 +258,6 @@ public class HtmlSpanner {
 
     /**
      * Creates spanned text from a TagNode.
-     *
-     * @param node
-     * @return
      */
     public Spannable fromTagNode(TagNode node, CancellationCallback cancellationCallback) {
         SpannableStringBuilder result = new SpannableStringBuilder();
@@ -327,7 +306,7 @@ public class HtmlSpanner {
         ContentNode contentNode = (ContentNode) node;
 
         String text = TextUtil.replaceHtmlEntities(
-                contentNode.getContent().toString(), false);
+                contentNode.getContent(), false);
 
         if (isStripExtraWhiteSpace()) {
             //Replace unicode non-breaking space with normal space.
@@ -469,7 +448,7 @@ public class HtmlSpanner {
 
     }
 
-    public static interface CancellationCallback {
+    public interface CancellationCallback {
         boolean isCancelled();
     }
 

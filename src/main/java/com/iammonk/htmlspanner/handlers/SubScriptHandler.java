@@ -15,25 +15,24 @@
  */
 package com.iammonk.htmlspanner.handlers;
 
+import android.text.SpannableStringBuilder;
+import android.text.style.SubscriptSpan;
+
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.TagNodeHandler;
 
 import org.htmlcleaner.TagNode;
 
-import android.text.SpannableStringBuilder;
-import android.text.style.SubscriptSpan;
-
 /**
  * Applies subscript style.
- * 
+ *
  * @author Alex Kuiper
- * 
  */
 public class SubScriptHandler extends TagNodeHandler {
 
-	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end, SpanStack spanStack) {
+    public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+                              int start, int end, SpanStack spanStack) {
 
-		spanStack.pushSpan(new SubscriptSpan(), start, end);
-	}
+        spanStack.pushSpan(new SubscriptSpan(), start, end);
+    }
 }

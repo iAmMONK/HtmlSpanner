@@ -10,7 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  */
@@ -19,47 +19,47 @@ package com.iammonk.htmlspanner.css;
 
 /**
  * Represents a CSS selector.
- * 
+ *
  * @author <a href="mailto:christoffer@christoffer.me">Christoffer Pettersson</a>
  */
 
 public final class Selector {
 
-	private String name;
+    private final String name;
 
-	/**
-	 * Creates a new selector.
-	 * 
-	 * @param name Selector name.
-	 */
+    /**
+     * Creates a new selector.
+     *
+     * @param name Selector name.
+     */
 
-	public Selector(final String name) {
-		this.name = name;
-	}
+    public Selector(final String name) {
+        this.name = name;
+    }
 
-	@Override
-	public String toString() {
-		return name;
-	}
+    @Override
+    public String toString() {
+        return name;
+    }
 
-	@Override
-	public boolean equals(final Object object) {
+    @Override
+    public boolean equals(final Object object) {
 
-		if (object instanceof Selector) {
+        if (object instanceof Selector) {
 
-			Selector target = (Selector) object;
+            Selector target = (Selector) object;
 
-			return target.name.equalsIgnoreCase(name);
+            return target.name.equalsIgnoreCase(name);
 
-		}
+        }
 
-		return false;
+        return false;
 
-	}
+    }
 
-	@Override
-	public int hashCode() {
-		return toString().hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return toString().hashCode();
+    }
 
 }

@@ -1,13 +1,5 @@
 package com.iammonk.htmlspanner;
 
-import com.osbcp.cssparser.CSSParser;
-import com.osbcp.cssparser.Rule;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-
-import static junit.framework.Assert.*;
-
 public class RuleMatchingTest {
 
     /*

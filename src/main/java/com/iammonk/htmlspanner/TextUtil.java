@@ -7,13 +7,13 @@ import java.util.regex.Pattern;
 
 public class TextUtil {
 
-	private static Pattern SPECIAL_CHAR_WHITESPACE = Pattern
+	private static final Pattern SPECIAL_CHAR_WHITESPACE = Pattern
 			.compile("(&[a-z]*;|&#x?([a-f]|[A-F]|[0-9])*;|[\\s\n]+)");
 
-	private static Pattern SPECIAL_CHAR_NO_WHITESPACE = Pattern
+	private static final Pattern SPECIAL_CHAR_NO_WHITESPACE = Pattern
 			.compile("(&[a-z]*;|&#x?([a-f]|[A-F]|[0-9])*;)");
 
-	private static Map<String, String> REPLACEMENTS = new HashMap<String, String>();
+	private static final Map<String, String> REPLACEMENTS = new HashMap<String, String>();
 
 	static {
 
@@ -141,7 +141,7 @@ public class TextUtil {
 			boolean preserveFormatting) {
 		StringBuffer result = new StringBuffer();
 
-		Map<String, String> replacements = new HashMap<String, String>(
+		Map<String, String> replacements = new HashMap<>(
 				REPLACEMENTS);
 		Matcher matcher;
 
@@ -175,7 +175,7 @@ public class TextUtil {
 			return result;
 		} else if ( match.startsWith("&#")) {
 			
-			Integer code;
+			int code;
 			
 			// Translate to unicode character.
 			try {
@@ -188,7 +188,7 @@ public class TextUtil {
 						match.length() - 1));
 				}
 				
-				return "" + (char) code.intValue();
+				return "" + (char) code;
 			} catch (NumberFormatException nfe) {
 				return "";
 			}

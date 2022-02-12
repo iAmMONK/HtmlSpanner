@@ -2,6 +2,7 @@ package com.iammonk.htmlspanner.css;
 
 import com.iammonk.htmlspanner.HtmlSpanner;
 import com.iammonk.htmlspanner.style.Style;
+
 import org.htmlcleaner.TagNode;
 
 import java.util.ArrayList;
@@ -9,23 +10,21 @@ import java.util.List;
 
 /**
  * A Compiled CSS Rule.
- *
+ * <p>
  * A CompiledRule consists of a numbers of matchers which can match TagNodes,
  * and StyleUpdaters which can update a Style object if the rule matches.
- *
- *
  */
 public class CompiledRule {
 
-    private List<List<CSSCompiler.TagNodeMatcher>> matchers = new ArrayList<List<CSSCompiler.TagNodeMatcher>>();
-    private List<CSSCompiler.StyleUpdater> styleUpdaters = new ArrayList<CSSCompiler.StyleUpdater>();
+    private final List<List<CSSCompiler.TagNodeMatcher>> matchers;
+    private final List<CSSCompiler.StyleUpdater> styleUpdaters;
 
-    private HtmlSpanner spanner;
+    private final HtmlSpanner spanner;
 
-    private String asText;
+    private final String asText;
 
     CompiledRule(HtmlSpanner spanner, List<List<CSSCompiler.TagNodeMatcher>> matchers,
-                        List<CSSCompiler.StyleUpdater> styleUpdaters, String asText ) {
+                 List<CSSCompiler.StyleUpdater> styleUpdaters, String asText) {
 
         this.spanner = spanner;
         this.matchers = matchers;
@@ -37,23 +36,22 @@ public class CompiledRule {
         return asText;
     }
 
-    public Style applyStyle( final Style style ) {
+    public Style applyStyle(final Style style) {
 
         Style result = style;
 
-       for ( CSSCompiler.StyleUpdater updater: styleUpdaters ) {
-           result = updater.updateStyle(result, spanner);
-       }
+        for (CSSCompiler.StyleUpdater updater : styleUpdaters) {
+            result = updater.updateStyle(result, spanner);
+        }
 
         return result;
     }
 
 
+    public boolean matches(TagNode tagNode) {
 
-    public boolean matches( TagNode tagNode ) {
-
-        for ( List<CSSCompiler.TagNodeMatcher> matcherList: matchers ) {
-            if ( matchesChain(matcherList, tagNode)) {
+        for (List<CSSCompiler.TagNodeMatcher> matcherList : matchers) {
+            if (matchesChain(matcherList, tagNode)) {
                 return true;
             }
         }
@@ -61,12 +59,12 @@ public class CompiledRule {
         return false;
     }
 
-    private static boolean matchesChain( List<CSSCompiler.TagNodeMatcher> matchers, TagNode tagNode ) {
+    private static boolean matchesChain(List<CSSCompiler.TagNodeMatcher> matchers, TagNode tagNode) {
 
         TagNode nodeToMatch = tagNode;
 
-        for ( CSSCompiler.TagNodeMatcher matcher: matchers ) {
-            if ( ! matcher.matches(nodeToMatch) ) {
+        for (CSSCompiler.TagNodeMatcher matcher : matchers) {
+            if (!matcher.matches(nodeToMatch)) {
                 return false;
             }
 

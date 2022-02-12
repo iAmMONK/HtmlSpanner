@@ -1,10 +1,12 @@
 package com.iammonk.htmlspanner.handlers.attributes;
 
 import android.text.SpannableStringBuilder;
+
 import com.iammonk.htmlspanner.HtmlSpanner;
 import com.iammonk.htmlspanner.SpanStack;
-import com.iammonk.htmlspanner.style.Style;
 import com.iammonk.htmlspanner.handlers.StyledTextHandler;
+import com.iammonk.htmlspanner.style.Style;
+
 import org.htmlcleaner.TagNode;
 
 /**
@@ -30,15 +32,15 @@ public class WrappingStyleHandler extends StyledTextHandler {
 
     @Override
     public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
-        if ( wrappedHandler != null ) {
+        if (wrappedHandler != null) {
             wrappedHandler.beforeChildren(node, builder, spanStack);
         }
     }
 
     @Override
     public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, Style useStyle,
-        SpanStack spanStack ) {
-        if ( wrappedHandler != null ) {
+                              SpanStack spanStack) {
+        if (wrappedHandler != null) {
             wrappedHandler.handleTagNode(node, builder, start, end, useStyle, spanStack);
         }
     }
@@ -51,9 +53,8 @@ public class WrappingStyleHandler extends StyledTextHandler {
     public void setSpanner(HtmlSpanner spanner) {
         super.setSpanner(spanner);
 
-        if ( this.getWrappedHandler() != null ) {
+        if (this.getWrappedHandler() != null) {
             this.getWrappedHandler().setSpanner(spanner);
         }
     }
-
 }

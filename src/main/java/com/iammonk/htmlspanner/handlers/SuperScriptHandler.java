@@ -15,25 +15,24 @@
  */
 package com.iammonk.htmlspanner.handlers;
 
+import android.text.SpannableStringBuilder;
+import android.text.style.SuperscriptSpan;
+
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.TagNodeHandler;
 
 import org.htmlcleaner.TagNode;
 
-import android.text.SpannableStringBuilder;
-import android.text.style.SuperscriptSpan;
-
 /**
  * Applies superscript.
- * 
+ *
  * @author Alex Kuiper
- * 
  */
 public class SuperScriptHandler extends TagNodeHandler {
 
-	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end, SpanStack spanStack) {
-		spanStack.pushSpan(new SuperscriptSpan(), start, end);
-	}
+    public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+                              int start, int end, SpanStack spanStack) {
+        spanStack.pushSpan(new SuperscriptSpan(), start, end);
+    }
 
 }

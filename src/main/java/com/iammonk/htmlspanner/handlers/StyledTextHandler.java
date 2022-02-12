@@ -2,12 +2,14 @@ package com.iammonk.htmlspanner.handlers;
 
 import android.text.SpannableStringBuilder;
 import android.util.Log;
+
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.TagNodeHandler;
-import com.iammonk.htmlspanner.spans.*;
+import com.iammonk.htmlspanner.spans.VerticalMarginSpan;
 import com.iammonk.htmlspanner.style.Style;
 import com.iammonk.htmlspanner.style.StyleCallback;
 import com.iammonk.htmlspanner.style.StyleValue;
+
 import org.htmlcleaner.TagNode;
 
 /**
@@ -17,7 +19,7 @@ import org.htmlcleaner.TagNode;
  */
 public class StyledTextHandler extends TagNodeHandler {
 
-    private Style style;
+    private final Style style;
 
     public StyledTextHandler() {
         this.style = new Style();
@@ -34,33 +36,33 @@ public class StyledTextHandler extends TagNodeHandler {
     @Override
     public void beforeChildren(TagNode node, SpannableStringBuilder builder, SpanStack spanStack) {
 
-        Style useStyle = spanStack.getStyle( node, getStyle() );
+        Style useStyle = spanStack.getStyle(node, getStyle());
 
-        if (builder.length() > 0 &&  useStyle.getDisplayStyle() == Style.DisplayStyle.BLOCK ) {
+        if (builder.length() > 0 && useStyle.getDisplayStyle() == Style.DisplayStyle.BLOCK) {
 
-            if ( builder.charAt(builder.length() -1) != '\n' ) {
+            if (builder.charAt(builder.length() - 1) != '\n') {
                 builder.append('\n');
             }
         }
 
         //If we have a top margin, we insert an extra newline. We'll manipulate the line height
         //of this newline to create the margin.
-        if ( useStyle.getMarginTop() != null ) {
+        if (useStyle.getMarginTop() != null) {
 
             StyleValue styleValue = useStyle.getMarginTop();
 
-            if ( styleValue.getUnit() == StyleValue.Unit.PX ) {
-                if ( styleValue.getIntValue() > 0 ) {
-                    if ( appendNewLine(builder) ) {
-                        spanStack.pushSpan( new VerticalMarginSpan( styleValue.getIntValue() ),
-                            builder.length() -1, builder.length() );
+            if (styleValue.getUnit() == StyleValue.Unit.PX) {
+                if (styleValue.getIntValue() > 0) {
+                    if (appendNewLine(builder)) {
+                        spanStack.pushSpan(new VerticalMarginSpan(styleValue.getIntValue()),
+                                builder.length() - 1, builder.length());
                     }
                 }
             } else {
-                if ( styleValue.getFloatValue() > 0f ) {
-                    if ( appendNewLine(builder) ) {
-                        spanStack.pushSpan( new VerticalMarginSpan( styleValue.getFloatValue() ),
-                            builder.length() -1, builder.length() );
+                if (styleValue.getFloatValue() > 0f) {
+                    if (appendNewLine(builder)) {
+                        spanStack.pushSpan(new VerticalMarginSpan(styleValue.getFloatValue()),
+                                builder.length() - 1, builder.length());
                     }
                 }
             }
@@ -72,44 +74,44 @@ public class StyledTextHandler extends TagNodeHandler {
 
     public final void handleTagNode(TagNode node, SpannableStringBuilder builder,
                                     int start, int end, SpanStack spanStack) {
-        Style styleFromCSS = spanStack.getStyle( node, getStyle() );
+        Style styleFromCSS = spanStack.getStyle(node, getStyle());
         handleTagNode(node, builder, start, end, styleFromCSS, spanStack);
     }
 
-    public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, Style useStyle, SpanStack stack ) {
+    public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, Style useStyle, SpanStack stack) {
 
-        if ( useStyle.getDisplayStyle() == Style.DisplayStyle.BLOCK ) {
+        if (useStyle.getDisplayStyle() == Style.DisplayStyle.BLOCK) {
             appendNewLine(builder);
 
             //If we have a bottom margin, we insert an extra newline. We'll manipulate the line height
             //of this newline to create the margin.
-            if ( useStyle.getMarginBottom() != null ) {
+            if (useStyle.getMarginBottom() != null) {
 
                 StyleValue styleValue = useStyle.getMarginBottom();
 
-                if ( styleValue.getUnit() == StyleValue.Unit.PX ) {
-                    if ( styleValue.getIntValue() > 0 ) {
+                if (styleValue.getUnit() == StyleValue.Unit.PX) {
+                    if (styleValue.getIntValue() > 0) {
                         appendNewLine(builder);
-                        stack.pushSpan( new VerticalMarginSpan( styleValue.getIntValue() ),
-                            builder.length() -1, builder.length() );
+                        stack.pushSpan(new VerticalMarginSpan(styleValue.getIntValue()),
+                                builder.length() - 1, builder.length());
                     }
                 } else {
-                    if ( styleValue.getFloatValue() > 0f ) {
+                    if (styleValue.getFloatValue() > 0f) {
                         appendNewLine(builder);
 
-                        stack.pushSpan( new VerticalMarginSpan( styleValue.getFloatValue() ),
-                            builder.length() -1, builder.length() );
+                        stack.pushSpan(new VerticalMarginSpan(styleValue.getFloatValue()),
+                                builder.length() - 1, builder.length());
                     }
                 }
 
             }
         }
 
-        if ( builder.length() > start ) {
+        if (builder.length() > start) {
             stack.pushSpan(new StyleCallback(getSpanner().getFontResolver()
-                .getDefaultFont(), useStyle, start, builder.length() ));
+                    .getDefaultFont(), useStyle, start, builder.length()));
         } else {
-            Log.d( "StyledTextHandler", "Refusing to push span of length " + ( builder.length() - start ));
+            Log.d("StyledTextHandler", "Refusing to push span of length " + (builder.length() - start));
         }
     }
 

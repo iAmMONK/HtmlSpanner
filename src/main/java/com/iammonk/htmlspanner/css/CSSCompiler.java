@@ -2,10 +2,12 @@ package com.iammonk.htmlspanner.css;
 
 import android.graphics.Color;
 import android.util.Log;
+
 import com.iammonk.htmlspanner.FontFamily;
 import com.iammonk.htmlspanner.HtmlSpanner;
 import com.iammonk.htmlspanner.style.Style;
 import com.iammonk.htmlspanner.style.StyleValue;
+
 import org.htmlcleaner.TagNode;
 
 import java.util.ArrayList;
@@ -13,63 +15,57 @@ import java.util.List;
 
 /**
  * Compiler for CSS Rules.
- *
+ * <p>
  * The compiler takes the raw parsed form (a Rule) of a CSS rule
  * and transforms it into an executable CompiledRule where all
  * the parsing of values has already been done.
- *
- *
  */
 public class CSSCompiler {
 
-    public static interface StyleUpdater {
-        Style updateStyle( Style style, HtmlSpanner spanner );
+    public interface StyleUpdater {
+        Style updateStyle(Style style, HtmlSpanner spanner);
     }
 
-    public static interface TagNodeMatcher {
-        boolean matches( TagNode tagNode );
+    public interface TagNodeMatcher {
+        boolean matches(TagNode tagNode);
     }
 
-    public static CompiledRule compile( Rule rule, HtmlSpanner spanner ) {
+    public static CompiledRule compile(Rule rule, HtmlSpanner spanner) {
 
-        Log.d("CSSCompiler", "Compiling rule " + rule );
+        List<List<TagNodeMatcher>> matchers = new ArrayList<>();
+        List<StyleUpdater> styleUpdaters = new ArrayList<>();
 
-        List<List<TagNodeMatcher>> matchers = new ArrayList<List<TagNodeMatcher>>();
-        List<StyleUpdater> styleUpdaters = new ArrayList<StyleUpdater>();
-
-        for ( Selector selector: rule.getSelectors() ) {
+        for (Selector selector : rule.getSelectors()) {
             List<CSSCompiler.TagNodeMatcher> selMatchers = CSSCompiler.createMatchersFromSelector(selector);
-            matchers.add( selMatchers );
+            matchers.add(selMatchers);
         }
 
         Style blank = new Style();
 
-        for ( PropertyValue propertyValue: rule.getPropertyValues() ) {
+        for (PropertyValue propertyValue : rule.getPropertyValues()) {
             CSSCompiler.StyleUpdater updater = CSSCompiler.getStyleUpdater(propertyValue.getProperty(),
                     propertyValue.getValue());
 
-            if ( updater != null ) {
-                styleUpdaters.add( updater );
+            if (updater != null) {
+                styleUpdaters.add(updater);
                 blank = updater.updateStyle(blank, spanner);
             }
         }
 
-        Log.d("CSSCompiler", "Compiled rule: " + blank );
-
         String asText = rule.toString();
 
-        return new CompiledRule(spanner, matchers, styleUpdaters, asText );
+        return new CompiledRule(spanner, matchers, styleUpdaters, asText);
     }
 
-    public static Integer parseCSSColor( String colorString ) {
+    public static Integer parseCSSColor(String colorString) {
 
         //Check for CSS short-hand notation: #0fc -> #00ffcc
-        if ( colorString.length() == 4 && colorString.startsWith("#") ) {
+        if (colorString.length() == 4 && colorString.startsWith("#")) {
             StringBuilder builder = new StringBuilder("#");
-            for ( int i =1; i < colorString.length(); i++ ) {
+            for (int i = 1; i < colorString.length(); i++) {
                 //Duplicate each char
-                builder.append( colorString.charAt(i) );
-                builder.append( colorString.charAt(i) );
+                builder.append(colorString.charAt(i));
+                builder.append(colorString.charAt(i));
             }
 
             colorString = builder.toString();
@@ -78,35 +74,34 @@ public class CSSCompiler {
         return Color.parseColor(colorString);
     }
 
-    public static List<TagNodeMatcher> createMatchersFromSelector( Selector selector ) {
-        List<TagNodeMatcher> matchers = new ArrayList<TagNodeMatcher>();
+    public static List<TagNodeMatcher> createMatchersFromSelector(Selector selector) {
+        List<TagNodeMatcher> matchers = new ArrayList<>();
 
         String selectorString = selector.toString();
 
         String[] parts = selectorString.split("\\s");
 
         //Create a reversed matcher list
-        for ( int i=parts.length -1; i >= 0; i-- ) {
-            matchers.add( createMatcherFromPart(parts[i]));
+        for (int i = parts.length - 1; i >= 0; i--) {
+            matchers.add(createMatcherFromPart(parts[i]));
         }
 
         return matchers;
     }
 
-    private static TagNodeMatcher createMatcherFromPart( String selectorPart ) {
+    private static TagNodeMatcher createMatcherFromPart(String selectorPart) {
 
         //Match by class
-        if ( selectorPart.indexOf('.') != -1 ) {
+        if (selectorPart.indexOf('.') != -1) {
             return new ClassMatcher(selectorPart);
         }
 
-        if ( selectorPart.startsWith("#") ) {
-            return new IdMatcher( selectorPart );
+        if (selectorPart.startsWith("#")) {
+            return new IdMatcher(selectorPart);
         }
 
         return new TagNameMatcher(selectorPart);
     }
-
 
 
     private static class ClassMatcher implements TagNodeMatcher {
@@ -114,11 +109,11 @@ public class CSSCompiler {
         private String tagName;
         private String className;
 
-        private ClassMatcher( String selectorString ) {
+        private ClassMatcher(String selectorString) {
 
             String[] elements = selectorString.split("\\.");
 
-            if ( elements.length == 2 ) {
+            if (elements.length == 2) {
                 tagName = elements[0];
                 className = elements[1];
             }
@@ -127,13 +122,13 @@ public class CSSCompiler {
         @Override
         public boolean matches(TagNode tagNode) {
 
-            if ( tagNode == null ) {
+            if (tagNode == null) {
                 return false;
             }
 
             //If a tag name is given it should match
-            if (tagName != null && tagName.length() > 0 && ! tagName.equals(tagNode.getName() ) ) {
-                return  false;
+            if (tagName != null && tagName.length() > 0 && !tagName.equals(tagNode.getName())) {
+                return false;
             }
 
             String classAttribute = tagNode.getAttributeByName("class");
@@ -142,319 +137,209 @@ public class CSSCompiler {
     }
 
     private static class TagNameMatcher implements TagNodeMatcher {
-        private String tagName;
+        private final String tagName;
 
-        private TagNameMatcher( String selectorString ) {
+        private TagNameMatcher(String selectorString) {
             this.tagName = selectorString.trim();
         }
 
         @Override
         public boolean matches(TagNode tagNode) {
-            return tagNode != null && tagName.equalsIgnoreCase( tagNode.getName() );
+            return tagNode != null && tagName.equalsIgnoreCase(tagNode.getName());
         }
     }
 
     private static class IdMatcher implements TagNodeMatcher {
-        private String id;
+        private final String id;
 
-        private IdMatcher( String selectorString ) {
+        private IdMatcher(String selectorString) {
             id = selectorString.substring(1);
         }
 
         @Override
         public boolean matches(TagNode tagNode) {
 
-            if ( tagNode == null ) {
+            if (tagNode == null) {
                 return false;
             }
 
             String idAttribute = tagNode.getAttributeByName("id");
-            return idAttribute != null && idAttribute.equals( id );
+            return idAttribute != null && idAttribute.equals(id);
         }
     }
 
-    public static StyleUpdater getStyleUpdater( final String key, final String value) {
+    public static StyleUpdater getStyleUpdater(final String key, final String value) {
 
-        if ( "color".equals(key)) {
+        if ("color".equals(key)) {
             try {
                 final Integer color = parseCSSColor(value);
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setColor(color);
-                    }
-                };
-            } catch ( IllegalArgumentException ia ) {
-                Log.e("CSSCompiler", "Can't parse colour definition: " + value);
+                return (style, spanner) -> style.setColor(color);
+            } catch (IllegalArgumentException ia) {
                 return null;
             }
         }
 
-        if ( "background-color".equals(key) ) {
+        if ("background-color".equals(key)) {
             try {
                 final Integer color = parseCSSColor(value);
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setBackgroundColor(color);
-                    }
-                };
-            } catch ( IllegalArgumentException ia ) {
-                Log.e("CSSCompiler", "Can't parse colour definition: " + value);
+                return (style, spanner) -> style.setBackgroundColor(color);
+            } catch (IllegalArgumentException ia) {
                 return null;
             }
         }
 
-        if ( "align".equals(key) || "text-align".equals(key)) {
+        if ("align".equals(key) || "text-align".equals(key)) {
             try {
                 final Style.TextAlignment alignment = Style.TextAlignment.valueOf(value.toUpperCase());
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setTextAlignment(alignment);
-                    }
-                };
+                return (style, spanner) -> style.setTextAlignment(alignment);
 
-            } catch ( IllegalArgumentException i ) {
-                Log.e("CSSCompiler", "Can't parse alignment: " + value);
+            } catch (IllegalArgumentException i) {
                 return null;
             }
         }
 
-        if ( "font-weight".equals(key)) {
+        if ("font-weight".equals(key)) {
 
             try {
                 final Style.FontWeight weight = Style.FontWeight.valueOf(value.toUpperCase());
+                return (style, spanner) -> style.setFontWeight(weight);
 
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setFontWeight(weight);
-                    }
-                };
-
-            } catch ( IllegalArgumentException i ) {
-                Log.e("CSSCompiler", "Can't parse font-weight: " + value);
+            } catch (IllegalArgumentException i) {
                 return null;
             }
         }
 
-        if ( "font-style".equals(key)) {
+        if ("font-style".equals(key)) {
             try {
                 final Style.FontStyle fontStyle = Style.FontStyle.valueOf(value.toUpperCase());
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setFontStyle(fontStyle);
-                    }
-                };
-            }
-            catch ( IllegalArgumentException i ) {
-                Log.e("CSSCompiler", "Can't parse font-style: " + value);
+                return (style, spanner) -> style.setFontStyle(fontStyle);
+            } catch (IllegalArgumentException i) {
                 return null;
             }
         }
 
-        if ( "font-family".equals(key)) {
-            return new StyleUpdater() {
-                @Override
-                public Style updateStyle(Style style, HtmlSpanner spanner) {
-                    Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-
-                    FontFamily family = spanner.getFont( value );
-
-                    Log.d("CSSCompiler", "Got font " + family );
-
-                    return style.setFontFamily(family);
-                }
+        if ("font-family".equals(key)) {
+            return (style, spanner) -> {
+                FontFamily family = spanner.getFont(value);
+                return style.setFontFamily(family);
             };
 
         }
 
-        if ( "font-size".equals(key)) {
+        if ("font-size".equals(key)) {
 
-            final StyleValue styleValue = StyleValue.parse( value );
+            final StyleValue styleValue = StyleValue.parse(value);
 
-            if ( styleValue != null ) {
+            if (styleValue != null) {
 
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                        return style.setFontSize(styleValue);
-                    }
-                };
+                return (style, spanner) -> style.setFontSize(styleValue);
 
             } else {
 
                 //Fonts have an extra legacy format where you just specify a plain number.
                 try {
-                    final Float number = translateFontSize(Integer.parseInt(value));
-                    return new StyleUpdater() {
-                        @Override
-                        public Style updateStyle(Style style, HtmlSpanner spanner) {
-                            Log.d("CSSCompiler", "Applying style " + key + ": " + value );
-                            return style.setFontSize(new StyleValue(number, StyleValue.Unit.EM));
-                        }
-                    };
-                } catch ( NumberFormatException nfe ) {
-                    Log.e("CSSCompiler", "Can't parse font-size: " + value );
+                    final float number = translateFontSize(Integer.parseInt(value));
+                    return (style, spanner) -> style.setFontSize(new StyleValue(number, StyleValue.Unit.EM));
+                } catch (NumberFormatException nfe) {
                     return null;
                 }
             }
         }
 
-        if ( "margin-bottom".equals(key) ) {
-
-            final StyleValue styleValue = StyleValue.parse( value );
-
-            if ( styleValue != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setMarginBottom(styleValue);
-                    }
-                };
+        if ("margin-bottom".equals(key)) {
+            final StyleValue styleValue = StyleValue.parse(value);
+            if (styleValue != null) {
+                return (style, spanner) -> style.setMarginBottom(styleValue);
             }
         }
 
-        if ( "margin-top".equals(key) ) {
+        if ("margin-top".equals(key)) {
 
-            final StyleValue styleValue = StyleValue.parse( value );
+            final StyleValue styleValue = StyleValue.parse(value);
 
-            if ( styleValue != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setMarginTop(styleValue);
-                    }
-                };
+            if (styleValue != null) {
+                return (style, spanner) -> style.setMarginTop(styleValue);
             }
         }
 
-        if ( "margin-left".equals(key) ) {
+        if ("margin-left".equals(key)) {
 
-            final StyleValue styleValue = StyleValue.parse( value );
+            final StyleValue styleValue = StyleValue.parse(value);
 
-            if ( styleValue != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setMarginLeft(styleValue);
-                    }
-                };
+            if (styleValue != null) {
+                return (style, spanner) -> style.setMarginLeft(styleValue);
             }
         }
 
-        if ( "margin-right".equals(key) ) {
+        if ("margin-right".equals(key)) {
 
-            final StyleValue styleValue = StyleValue.parse( value );
+            final StyleValue styleValue = StyleValue.parse(value);
 
-            if ( styleValue != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setMarginRight(styleValue);
-                    }
-                };
+            if (styleValue != null) {
+                return (style, spanner) -> style.setMarginRight(styleValue);
             }
         }
 
-        if ( "margin".equals( key ) ) {
-            return parseMargin( value );
+        if ("margin".equals(key)) {
+            return parseMargin(value);
         }
 
-        if ( "text-indent".equals(key) ) {
-            final StyleValue styleValue = StyleValue.parse( value );
+        if ("text-indent".equals(key)) {
+            final StyleValue styleValue = StyleValue.parse(value);
 
-            if ( styleValue != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setTextIndent(styleValue);
-                    }
-                };
+            if (styleValue != null) {
+                return (style, spanner) -> style.setTextIndent(styleValue);
             }
         }
 
-        if ( "display".equals( key ) ) {
+        if ("display".equals(key)) {
             try {
-                final Style.DisplayStyle displayStyle = Style.DisplayStyle.valueOf( value.toUpperCase() );
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setDisplayStyle(displayStyle);
-                    }
-                };
+                final Style.DisplayStyle displayStyle = Style.DisplayStyle.valueOf(value.toUpperCase());
+                return (style, spanner) -> style.setDisplayStyle(displayStyle);
             } catch (IllegalArgumentException ia) {
-                Log.e("CSSCompiler", "Can't parse display-value: " + value );
                 return null;
             }
         }
 
-        if ( "border-style".equals( key ) ) {
+        if ("border-style".equals(key)) {
             try {
                 final Style.BorderStyle borderStyle = Style.BorderStyle.valueOf(value.toUpperCase());
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setBorderStyle( borderStyle );
-                    }
-                };
+                return (style, spanner) -> style.setBorderStyle(borderStyle);
             } catch (IllegalArgumentException ia) {
-                Log.e("CSSCompiler", "Could not parse border-style " + value );
                 return null;
             }
         }
 
-        if ( "border-color".equals( key ) ) {
+        if ("border-color".equals(key)) {
             try {
                 final Integer borderColor = parseCSSColor(value);
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setBorderColor( borderColor );
-                    }
-                };
+                return (style, spanner) -> style.setBorderColor(borderColor);
             } catch (IllegalArgumentException ia) {
-                Log.e("CSSCompiler", "Could not parse border-color " + value );
                 return null;
             }
         }
 
-        if ( "border-width".equals( key ) ) {
+        if ("border-width".equals(key)) {
 
             final StyleValue borderWidth = StyleValue.parse(value);
-            if ( borderWidth != null ) {
-                return new StyleUpdater() {
-                    @Override
-                    public Style updateStyle(Style style, HtmlSpanner spanner) {
-                        return style.setBorderWidth( borderWidth );
-                    }
-                };
+            if (borderWidth != null) {
+                return (style, spanner) -> style.setBorderWidth(borderWidth);
             } else {
-                Log.e("CSSCompiler", "Could not parse border-color " + value );
                 return null;
             }
         }
 
 
-        if ( "border".equals( key ) ) {
-           return parseBorder( value );
+        if ("border".equals(key)) {
+            return parseBorder(value);
         }
 
-        Log.d("CSSCompiler", "Don't understand CSS property '" + key + "'. Ignoring it.");
         return null;
     }
 
-    private static float translateFontSize( int fontSize ) {
+    private static float translateFontSize(int fontSize) {
 
-        switch (fontSize ) {
+        switch (fontSize) {
             case 1:
                 return 0.6f;
             case 2:
@@ -476,13 +361,10 @@ public class CSSCompiler {
 
     /**
      * Parses a border definition.
-     *
+     * <p>
      * Border definitions are a complete mess, since the order is not set.
-     *
-     * @param borderDefinition
-     * @return
      */
-    private static StyleUpdater parseBorder( String borderDefinition ) {
+    private static StyleUpdater parseBorder(String borderDefinition) {
 
         String[] parts = borderDefinition.split("\\s");
 
@@ -490,70 +372,59 @@ public class CSSCompiler {
         Integer borderColor = null;
         Style.BorderStyle borderStyle = null;
 
-        for ( String part: parts ) {
+        for (String part : parts) {
 
-            Log.d("CSSParser", "Trying to parse " + part );
+            if (borderWidth == null) {
 
-            if ( borderWidth == null ) {
+                borderWidth = StyleValue.parse(part);
 
-                borderWidth = StyleValue.parse( part );
-
-                if ( borderWidth != null ) {
-                    Log.d("CSSParser", "Parsed " + part + " as border-width");
+                if (borderWidth != null) {
                     continue;
                 }
             }
 
-            if ( borderColor == null ) {
+            if (borderColor == null) {
                 try {
                     borderColor = parseCSSColor(part);
-                    Log.d("CSSParser", "Parsed " + part + " as border-color");
                     continue;
-                } catch ( IllegalArgumentException ia ) {
+                } catch (IllegalArgumentException ia) {
                     //try next one
                 }
             }
 
-            if ( borderStyle == null ) {
+            if (borderStyle == null) {
                 try {
                     borderStyle = Style.BorderStyle.valueOf(part.toUpperCase());
-                    Log.d("CSSParser", "Parsed " + part + " as border-style");
-                    continue;
-                } catch ( IllegalArgumentException ia ) {
+                } catch (IllegalArgumentException ia) {
                     //next loop iteration
                 }
             }
-
-            Log.d("CSSParser", "Could not make sense of border-spec " + part );
         }
 
         final StyleValue finalBorderWidth = borderWidth;
         final Integer finalBorderColor = borderColor;
         final Style.BorderStyle finalBorderStyle = borderStyle;
 
-        return new StyleUpdater() {
-            @Override
-            public Style updateStyle(Style style, HtmlSpanner spanner) {
+        return (style, spanner) -> {
 
-                if ( finalBorderColor != null ) {
-                    style = style.setBorderColor(finalBorderColor);
-                }
-
-                if ( finalBorderWidth != null ) {
-                    style = style.setBorderWidth( finalBorderWidth );
-                }
-
-                if ( finalBorderStyle != null ) {
-                    style = style.setBorderStyle( finalBorderStyle );
-                }
-
-                return style;
+            if (finalBorderColor != null) {
+                style = style.setBorderColor(finalBorderColor);
             }
+
+            if (finalBorderWidth != null) {
+                style = style.setBorderWidth(finalBorderWidth);
+            }
+
+            if (finalBorderStyle != null) {
+                style = style.setBorderStyle(finalBorderStyle);
+            }
+
+            return style;
         };
 
     }
 
-    private static StyleUpdater parseMargin( String marginValue ) {
+    private static StyleUpdater parseMargin(String marginValue) {
 
         String[] parts = marginValue.split("\\s");
 
@@ -564,57 +435,54 @@ public class CSSCompiler {
 
         //See http://www.w3schools.com/css/css_margin.asp
 
-        if ( parts.length == 1 ) {
+        if (parts.length == 1) {
             bottomMarginString = parts[0];
             topMarginString = parts[0];
             leftMarginString = parts[0];
             rightMarginString = parts[0];
-        } else if ( parts.length == 2 ) {
+        } else if (parts.length == 2) {
             topMarginString = parts[0];
             bottomMarginString = parts[0];
             leftMarginString = parts[1];
             rightMarginString = parts[1];
-        } else if ( parts.length == 3 ) {
+        } else if (parts.length == 3) {
             topMarginString = parts[0];
             leftMarginString = parts[1];
             rightMarginString = parts[1];
             bottomMarginString = parts[2];
-        } else if ( parts.length == 4 ) {
+        } else if (parts.length == 4) {
             topMarginString = parts[0];
             rightMarginString = parts[1];
             bottomMarginString = parts[2];
             leftMarginString = parts[3];
         }
 
-        final StyleValue marginBottom = StyleValue.parse( bottomMarginString );
-        final StyleValue marginTop = StyleValue.parse( topMarginString );
-        final StyleValue marginLeft = StyleValue.parse( leftMarginString );
-        final StyleValue marginRight = StyleValue.parse( rightMarginString );
+        final StyleValue marginBottom = StyleValue.parse(bottomMarginString);
+        final StyleValue marginTop = StyleValue.parse(topMarginString);
+        final StyleValue marginLeft = StyleValue.parse(leftMarginString);
+        final StyleValue marginRight = StyleValue.parse(rightMarginString);
 
 
-        return new StyleUpdater() {
-            @Override
-            public Style updateStyle(Style style, HtmlSpanner spanner) {
-                Style resultStyle = style;
+        return (style, spanner) -> {
+            Style resultStyle = style;
 
-                if ( marginBottom != null ) {
-                    resultStyle =  resultStyle.setMarginBottom(marginBottom);
-                }
-
-                if ( marginTop != null ) {
-                    resultStyle = resultStyle.setMarginTop(marginTop);
-                }
-
-                if ( marginLeft != null ) {
-                    resultStyle = resultStyle.setMarginLeft(marginLeft);
-                }
-
-                if ( marginRight != null ) {
-                    resultStyle = resultStyle.setMarginRight(marginRight);
-                }
-
-                return resultStyle;
+            if (marginBottom != null) {
+                resultStyle = resultStyle.setMarginBottom(marginBottom);
             }
+
+            if (marginTop != null) {
+                resultStyle = resultStyle.setMarginTop(marginTop);
+            }
+
+            if (marginLeft != null) {
+                resultStyle = resultStyle.setMarginLeft(marginLeft);
+            }
+
+            if (marginRight != null) {
+                resultStyle = resultStyle.setMarginRight(marginRight);
+            }
+
+            return resultStyle;
         };
     }
 

@@ -21,16 +21,17 @@ import android.graphics.Paint;
 import android.text.Layout;
 import android.text.Spanned;
 import android.text.style.LeadingMarginSpan;
+
 import com.iammonk.htmlspanner.HtmlSpanner;
 
 /**
  * This class is similar to Android's BulletSpan with the following differences:
- *
+ * <p>
  * - Less options
- *
+ * <p>
  * - Instead of drawing a circle we are using a utf8 sign as a bullet (for more
  * compatibility)
- *
+ * <p>
  * - Also supports ordered lists with numbers in front of the item
  */
 public class ListItemSpan implements LeadingMarginSpan {

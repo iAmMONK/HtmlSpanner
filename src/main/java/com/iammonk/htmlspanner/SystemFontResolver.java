@@ -13,7 +13,6 @@ import android.util.Log;
 public class SystemFontResolver implements FontResolver {
 
     private FontFamily defaultFont;
-
     private FontFamily serifFont;
     private FontFamily sansSerifFont;
     private FontFamily monoSpaceFont;
@@ -23,7 +22,7 @@ public class SystemFontResolver implements FontResolver {
         this.defaultFont = new FontFamily("default", Typeface.DEFAULT);
         this.serifFont = new FontFamily("serif", Typeface.SERIF);
         this.sansSerifFont = new FontFamily("sans-serif", Typeface.SANS_SERIF);
-        this.monoSpaceFont = new FontFamily("monospace", Typeface.MONOSPACE );
+        this.monoSpaceFont = new FontFamily("monospace", Typeface.MONOSPACE);
     }
 
     public FontFamily getDefaultFont() {
@@ -54,26 +53,26 @@ public class SystemFontResolver implements FontResolver {
         return monoSpaceFont;
     }
 
-    public FontFamily getFont( String name ) {
+    public FontFamily getFont(String name) {
 
-        if ( name != null && name.length() > 0 ) {
+        if (name != null && name.length() > 0) {
 
             String[] parts = name.split(",(\\s)*");
 
-            for ( int i = 0; i < parts.length; i++ ) {
+            for (String part : parts) {
 
-                String fontName = parts[i];
+                String fontName = part;
 
-                if ( fontName.startsWith("\"") && fontName.endsWith("\"")) {
-                    fontName = fontName.substring(1, fontName.length() -1 );
+                if (fontName.startsWith("\"") && fontName.endsWith("\"")) {
+                    fontName = fontName.substring(1, fontName.length() - 1);
                 }
 
-                if ( fontName.startsWith("\'") && fontName.endsWith("\'")) {
-                    fontName = fontName.substring(1, fontName.length() -1 );
+                if (fontName.startsWith("\'") && fontName.endsWith("\'")) {
+                    fontName = fontName.substring(1, fontName.length() - 1);
                 }
 
                 FontFamily fam = resolveFont(fontName);
-                if ( fam != null ) {
+                if (fam != null) {
                     return fam;
                 }
             }
@@ -82,15 +81,12 @@ public class SystemFontResolver implements FontResolver {
         return getDefaultFont();
     }
 
-    protected FontFamily resolveFont( String name ) {
-
-        Log.d("SystemFontResolver", "Trying to resolve font " + name );
-
-        if ( name.equalsIgnoreCase("serif") ) {
+    protected FontFamily resolveFont(String name) {
+        if (name.equalsIgnoreCase("serif")) {
             return getSerifFont();
-        } else if ( name.equalsIgnoreCase("sans-serif") ) {
+        } else if (name.equalsIgnoreCase("sans-serif")) {
             return getSansSerifFont();
-        } else if ( name.equalsIgnoreCase("monospace") ) {
+        } else if (name.equalsIgnoreCase("monospace")) {
             return monoSpaceFont;
         }
 

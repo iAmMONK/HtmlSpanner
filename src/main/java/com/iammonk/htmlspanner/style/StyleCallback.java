@@ -20,11 +20,11 @@ import static java.lang.Math.min;
  */
 public class StyleCallback implements SpanCallback {
 
-    private int start;
-    private int end;
+    private final int start;
+    private final int end;
 
-    private FontFamily defaultFont;
-    private Style useStyle;
+    private final FontFamily defaultFont;
+    private final Style useStyle;
 
     public StyleCallback( FontFamily defaultFont, Style style, int start, int end ) {
         this.defaultFont = defaultFont;
@@ -61,17 +61,13 @@ public class StyleCallback implements SpanCallback {
                 newSpan.setItalic( originalSpan.isItalic() );
             }
 
-            //Log.d("StyleCallback", "Applying FontFamilySpan from " + start + " to " + end + " on text " + builder.subSequence(start, end));
-            //Log.d("StyleCallback", "FontFamilySpan: " + newSpan );
-
             builder.setSpan(newSpan, start, end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
         //If there's no border, we use a BackgroundColorSpan to draw colour behind the text
         if ( spanner.isUseColoursFromStyle() &&  useStyle.getBackgroundColor() != null  && useStyle.getBorderStyle() == null ) {
-            //Log.d("StyleCallback", "Applying BackgroundColorSpan with color " + useStyle.getBackgroundColor() + " from " + start + " to " + end + " on text " + builder.subSequence(start, end));
-              builder.setSpan(new BackgroundColorSpan(useStyle.getBackgroundColor()), start, end,
+            builder.setSpan(new BackgroundColorSpan(useStyle.getBackgroundColor()), start, end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
 
@@ -87,13 +83,11 @@ public class StyleCallback implements SpanCallback {
 
             if ( styleValue.getUnit() == StyleValue.Unit.PX ) {
                 if ( styleValue.getIntValue() > 0 ) {
-                    // Log.d("StyleCallback", "Applying AbsoluteSizeSpan with size " + useStyle.getAbsoluteFontSize() + " from " + start + " to " + end + " on text " + builder.subSequence(start, end));
                     builder.setSpan(new AbsoluteSizeSpan(styleValue.getIntValue()), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
             } else {
                 if ( styleValue.getFloatValue() > 0f ) {
-                    //Log.d("StyleCallback", "Applying RelativeSizeSpan with size " + useStyle.getRelativeFontSize() + " from " + start + " to " + end + " on text " + builder.subSequence(start, end));
                     builder.setSpan(new RelativeSizeSpan(styleValue.getFloatValue()), start, end,
                         Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                 }
@@ -101,7 +95,6 @@ public class StyleCallback implements SpanCallback {
         }
 
         if ( spanner.isUseColoursFromStyle() && useStyle.getColor() != null ) {
-            //Log.d("StyleCallback", "Applying ForegroundColorSpan from " + start + " to " + end + " on text " + builder.subSequence(start, end) );
             builder.setSpan(new ForegroundColorSpan(useStyle.getColor()), start, end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
@@ -122,7 +115,6 @@ public class StyleCallback implements SpanCallback {
                     break;
             }
 
-            //Log.d("StyleCallback", "Applying AlignmentSpan from " + start + " to " + end + " on text " + builder.subSequence(start, end) );
             builder.setSpan(alignSpan, start, end,
                     Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 

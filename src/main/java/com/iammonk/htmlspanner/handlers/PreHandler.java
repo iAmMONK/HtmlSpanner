@@ -15,61 +15,59 @@
  */
 package com.iammonk.htmlspanner.handlers;
 
+import android.text.SpannableStringBuilder;
+
 import com.iammonk.htmlspanner.FontFamily;
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.TagNodeHandler;
 import com.iammonk.htmlspanner.TextUtil;
-
 import com.iammonk.htmlspanner.spans.FontFamilySpan;
+
 import org.htmlcleaner.ContentNode;
 import org.htmlcleaner.TagNode;
-
-import android.text.SpannableStringBuilder;
 
 /**
  * Handles pre tags, setting the style to monospace and preserving the
  * formatting.
- * 
+ *
  * @author Alex Kuiper
- * 
  */
 public class PreHandler extends TagNodeHandler {
 
-	private void getPlainText(StringBuffer buffer, Object node) {
-		if (node instanceof ContentNode) {
+    private void getPlainText(StringBuffer buffer, Object node) {
+        if (node instanceof ContentNode) {
 
-			ContentNode contentNode = (ContentNode) node;
-			String text = TextUtil.replaceHtmlEntities(contentNode.getContent()
-					.toString(), true);
+            ContentNode contentNode = (ContentNode) node;
+            String text = TextUtil.replaceHtmlEntities(contentNode.getContent(), true);
 
-			buffer.append(text);
+            buffer.append(text);
 
-		} else if (node instanceof TagNode) {
-			TagNode tagNode = (TagNode) node;
-			for (Object child : tagNode.getAllChildren()) {
-				getPlainText(buffer, child);
-			}
-		}
-	}
+        } else if (node instanceof TagNode) {
+            TagNode tagNode = (TagNode) node;
+            for (Object child : tagNode.getAllChildren()) {
+                getPlainText(buffer, child);
+            }
+        }
+    }
 
-	@Override
-	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end, SpanStack spanStack) {
+    @Override
+    public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+                              int start, int end, SpanStack spanStack) {
 
-		StringBuffer buffer = new StringBuffer();
-		getPlainText(buffer, node);
+        StringBuffer buffer = new StringBuffer();
+        getPlainText(buffer, node);
 
-		builder.append(buffer.toString());
+        builder.append(buffer.toString());
 
         FontFamily monoSpace = getSpanner().getFontResolver().getMonoSpaceFont();
-		spanStack.pushSpan(new FontFamilySpan(monoSpace), start, builder.length());
-		appendNewLine(builder);
-		appendNewLine(builder);
-	}
+        spanStack.pushSpan(new FontFamilySpan(monoSpace), start, builder.length());
+        appendNewLine(builder);
+        appendNewLine(builder);
+    }
 
-	@Override
-	public boolean rendersContent() {
-		return true;
-	}
+    @Override
+    public boolean rendersContent() {
+        return true;
+    }
 
 }

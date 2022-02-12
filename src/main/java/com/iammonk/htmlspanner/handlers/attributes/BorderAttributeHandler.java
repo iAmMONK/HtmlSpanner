@@ -2,10 +2,12 @@ package com.iammonk.htmlspanner.handlers.attributes;
 
 import android.text.SpannableStringBuilder;
 import android.util.Log;
+
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.handlers.StyledTextHandler;
 import com.iammonk.htmlspanner.spans.BorderSpan;
 import com.iammonk.htmlspanner.style.Style;
+
 import org.htmlcleaner.TagNode;
 
 /**
@@ -25,9 +27,8 @@ public class BorderAttributeHandler extends WrappingStyleHandler {
     public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end,
                               Style useStyle, SpanStack spanStack) {
 
-        if ( node.getAttributeByName("border") != null ) {
-            Log.d("BorderAttributeHandler", "Adding BorderSpan from " + start + " to " + end);
-            spanStack.pushSpan(new BorderSpan(useStyle, start, end, getSpanner().isUseColoursFromStyle() ), start, end);
+        if (node.getAttributeByName("border") != null) {
+            spanStack.pushSpan(new BorderSpan(useStyle, start, end, getSpanner().isUseColoursFromStyle()), start, end);
         }
 
         super.handleTagNode(node, builder, start, end, useStyle, spanStack);

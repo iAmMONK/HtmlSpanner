@@ -10,7 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  */
@@ -23,184 +23,156 @@ import java.util.List;
 
 /**
  * Represents a CSS rule.
- * 
+ *
  * @author <a href="mailto:christoffer@christoffer.me">Christoffer Pettersson</a>
  */
 
 public final class Rule {
 
-	private List<Selector> selectors;
-	private List<PropertyValue> propertyValues;
+    private final List<Selector> selectors;
+    private final List<PropertyValue> propertyValues;
 
-	/**
-	 * Creates a rule with a single selector.
-	 * 
-	 * @param selector A selector that the rule should initial with.
-	 */
+    /**
+     * Creates a rule with a single selector.
+     *
+     * @param selector A selector that the rule should initial with.
+     */
 
-	public Rule(final Selector selector) {
-		this();
-		this.selectors.add(selector);
-	}
+    public Rule(final Selector selector) {
+        this();
+        this.selectors.add(selector);
+    }
 
-	/**
-	 * Creates an empty rule.
-	 */
+    /**
+     * Creates an empty rule.
+     */
 
-	public Rule() {
-		this(new ArrayList<Selector>());
-	}
+    public Rule() {
+        this(new ArrayList<>());
+    }
 
-	/**
-	 * Creates a new rule based on a list of selectors.
-	 * 
-	 * @param selectors A list of selectors that the rule should initial with.
-	 */
+    /**
+     * Creates a new rule based on a list of selectors.
+     *
+     * @param selectors A list of selectors that the rule should initial with.
+     */
 
-	public Rule(final List<Selector> selectors) {
-		this.selectors = selectors;
-		this.propertyValues = new ArrayList<PropertyValue>();
-	}
+    public Rule(final List<Selector> selectors) {
+        this.selectors = selectors;
+        this.propertyValues = new ArrayList<>();
+    }
 
-	@Override
-	public String toString() {
+    @Override
+    public String toString() {
 
-		StringBuilder out = new StringBuilder();
+        StringBuilder out = new StringBuilder();
 
-		//			for (String selectorString : selectors) {
-		//
-		//				out.append(selectorString + ",");
-		//		out.append(implode(selectors) + " {\n");
-		//
-		//			}
+        out.append(implode(selectors) + " {\n");
+        for (PropertyValue propertyValue : propertyValues) {
+            out.append("\t" + propertyValue + ";\n");
+        }
+        out.append("}\n");
 
-		out.append(implode(selectors) + " {\n");
-		for (PropertyValue propertyValue : propertyValues) {
-			out.append("\t" + propertyValue + ";\n");
-		}
-		out.append("}\n");
+        return out.toString();
+    }
 
-		return out.toString();
-	}
+    /**
+     * Adds a property value to the rule.
+     *
+     * @param propertyValue The property value that should be attached.
+     */
 
-	/**
-	 * Adds a property value to the rule.
-	 * 
-	 * @param propertyValue The property value that should be attached.
-	 */
+    public void addPropertyValue(final PropertyValue propertyValue) {
+        propertyValues.add(propertyValue);
+    }
 
-	public void addPropertyValue(final PropertyValue propertyValue) {
-		propertyValues.add(propertyValue);
-	}
+    /**
+     * Returns a list of all property values attached to the rule.
+     *
+     * @return A list of all property values attached to the rule.
+     */
 
-	/**
-	 * Returns a list of all property values attached to the rule.
-	 * 
-	 * @return A list of all property values attached to the rule.
-	 */
+    public List<PropertyValue> getPropertyValues() {
+        return propertyValues;
+    }
 
-	public List<PropertyValue> getPropertyValues() {
-		return propertyValues;
-	}
+    /**
+     * Returns a list of all selectors attached to the rule.
+     *
+     * @return A list of all selectors attached to the rule.
+     */
 
-	/**
-	 * Returns a list of all selectors attached to the rule.
-	 * 
-	 * @return A list of all selectors attached to the rule.
-	 */
+    public List<Selector> getSelectors() {
+        return selectors;
+    }
 
-	public List<Selector> getSelectors() {
-		return selectors;
-	}
+    /**
+     * Adds a list of selectors to the existing list of selectors.
+     *
+     * @param selectors A list of selectors that should be appended.
+     */
 
-	/**
-	 * Adds a list of selectors to the existing list of selectors.
-	 * 
-	 * @param selectors A list of selectors that should be appended.
-	 */
+    public void addSelectors(final List<Selector> selectors) {
+        this.selectors.addAll(selectors);
+    }
 
-	public void addSelectors(final List<Selector> selectors) {
-		this.selectors.addAll(selectors);
-	}
+    /**
+     * Implodes the list of selectors into a pretty String.
+     *
+     * @param values A list of selectors.
+     * @return A fancy String.
+     */
 
-	//
-	//	@Override
-	//	public boolean equals(final Object object) {
-	//
-	//		if (object instanceof Rule) {
-	//
-	//			Rule target = (Rule) object;
-	//
-	//			return target.name.equalsIgnoreCase(name);
-	//
-	//		}
-	//
-	//		return false;
-	//
-	//	}
-	//
-	//	@Override
-	//	public int hashCode() {
-	//		return toString().hashCode();
-	//	}
+    private String implode(final List<Selector> values) {
 
-	/**
-	 * Implodes the list of selectors into a pretty String.
-	 * 
-	 * @param values A list of selectors.
-	 * @return A fancy String.
-	 */
+        StringBuilder sb = new StringBuilder();
 
-	private String implode(final List<Selector> values) {
+        Iterator<Selector> iterator = values.iterator();
 
-		StringBuilder sb = new StringBuilder();
+        while (iterator.hasNext()) {
 
-		Iterator<Selector> iterator = values.iterator();
+            Selector selector = iterator.next();
 
-		while (iterator.hasNext()) {
+            sb.append(selector.toString());
 
-			Selector selector = iterator.next();
+            if (iterator.hasNext()) {
+                sb.append(", ");
+            }
 
-			sb.append(selector.toString());
+        }
 
-			if (iterator.hasNext()) {
-				sb.append(", ");
-			}
+        return sb.toString();
 
-		}
+    }
 
-		return sb.toString();
+    /**
+     * Removes a property value from the rule.
+     *
+     * @param propertyValue The property value that should be removed.
+     */
 
-	}
+    public void removePropertyValue(final PropertyValue propertyValue) {
+        propertyValues.remove(propertyValue);
+    }
 
-	/**
-	 * Removes a property value from the rule.
-	 * 
-	 * @param propertyValue The property value that should be removed.
-	 */
+    /**
+     * Adds a selector to the rule.
+     *
+     * @param selector The selector that should be attached to the rule.
+     */
 
-	public void removePropertyValue(final PropertyValue propertyValue) {
-		propertyValues.remove(propertyValue);
-	}
+    public void addSelector(final Selector selector) {
+        selectors.add(selector);
+    }
 
-	/**
-	 * Adds a selector to the rule.
-	 * 
-	 * @param selector The selector that should be attached to the rule.
-	 */
+    /**
+     * Removes a selector from the rule.
+     *
+     * @param selector The selector that should be removed from the rule.
+     */
 
-	public void addSelector(final Selector selector) {
-		selectors.add(selector);
-	}
-
-	/**
-	 * Removes a selector from the rule.
-	 * 
-	 * @param selector The selector that should be removed from the rule.
-	 */
-
-	public void removeSelector(final Selector selector) {
-		selectors.remove(selector);
-	}
+    public void removeSelector(final Selector selector) {
+        selectors.remove(selector);
+    }
 
 }

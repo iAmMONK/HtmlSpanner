@@ -10,7 +10,7 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- * 
+ *
  * See the NOTICE file distributed with this work for additional
  * information regarding copyright ownership.
  */
@@ -19,35 +19,35 @@ package com.iammonk.htmlspanner.css;
 
 /**
  * Different states to aid the CSS parser.
- * 
+ *
  * @author <a href="mailto:christoffer@christoffer.me">Christoffer Pettersson</a>
  */
 
 enum State {
 
-	/**
-	 * Inside a selector
-	 */
-	INSIDE_SELECTOR,
+    /**
+     * Inside a selector
+     */
+    INSIDE_SELECTOR,
 
-	/**
-	 * Inside a comment.
-	 */
-	INSIDE_COMMENT,
+    /**
+     * Inside a comment.
+     */
+    INSIDE_COMMENT,
 
-	/**
-	 * Inside a property value.
-	 */
-	INSIDE_PROPERTY_NAME,
+    /**
+     * Inside a property value.
+     */
+    INSIDE_PROPERTY_NAME,
 
-	/**
-	 * Inside value.
-	 */
-	INSIDE_VALUE,
+    /**
+     * Inside value.
+     */
+    INSIDE_VALUE,
 
-	/**
-	 * Inside value and also inside (
-	 */
-	INSIDE_VALUE_ROUND_BRACKET;
+    /**
+     * Inside value and also inside (
+     */
+    INSIDE_VALUE_ROUND_BRACKET;
 
 }

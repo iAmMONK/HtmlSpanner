@@ -15,17 +15,13 @@
  */
 package com.iammonk.htmlspanner.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import android.graphics.*;
-
-import com.iammonk.htmlspanner.SpanStack;
-import com.iammonk.htmlspanner.TagNodeHandler;
-
-import org.htmlcleaner.TagNode;
-
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.graphics.PixelFormat;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.text.Layout.Alignment;
 import android.text.Spannable;
@@ -36,75 +32,74 @@ import android.text.TextPaint;
 import android.text.style.AlignmentSpan;
 import android.text.style.ImageSpan;
 
+import com.iammonk.htmlspanner.SpanStack;
+import com.iammonk.htmlspanner.TagNodeHandler;
+
+import org.htmlcleaner.TagNode;
+
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Handles simple HTML tables.
- * 
+ * <p>
  * Since it renders these tables itself, it needs to know things like font size
  * and text colour to use.
- * 
+ *
  * @author Alex Kuiper
- * 
  */
 public class TableHandler extends TagNodeHandler {
 
-	private int tableWidth = 400;
-	private Typeface typeFace = Typeface.DEFAULT;
-	private float textSize = 16f;
-	private int textColor = Color.BLACK;
+    private int tableWidth = 400;
+    private Typeface typeFace = Typeface.DEFAULT;
+    private float textSize = 16f;
+    private int textColor = Color.BLACK;
 
-	private static final int PADDING = 5;
+    private static final int PADDING = 5;
 
-	/**
-	 * Sets how wide the table should be.
-	 * 
-	 * @param tableWidth
-	 */
-	public void setTableWidth(int tableWidth) {
-		this.tableWidth = tableWidth;
-	}
+    /**
+     * Sets how wide the table should be.
+     */
+    public void setTableWidth(int tableWidth) {
+        this.tableWidth = tableWidth;
+    }
 
-	/**
-	 * Sets the text colour to use.
-	 * 
-	 * Default is black.
-	 * 
-	 * @param textColor
-	 */
-	public void setTextColor(int textColor) {
-		this.textColor = textColor;
-	}
+    /**
+     * Sets the text colour to use.
+     * <p>
+     * Default is black.
+     */
+    public void setTextColor(int textColor) {
+        this.textColor = textColor;
+    }
 
-	/**
-	 * Sets the font size to use.
-	 * 
-	 * Default is 16f.
-	 * 
-	 * @param textSize
-	 */
-	public void setTextSize(float textSize) {
-		this.textSize = textSize;
-	}
+    /**
+     * Sets the font size to use.
+     * <p>
+     * Default is 16f.
+     */
+    public void setTextSize(float textSize) {
+        this.textSize = textSize;
+    }
 
-	/**
-	 * Sets the TypeFace to use.
-	 * 
-	 * Default is Typeface.DEFAULT
-	 * 
-	 * @param typeFace
-	 */
-	public void setTypeFace(Typeface typeFace) {
-		this.typeFace = typeFace;
-	}
+    /**
+     * Sets the TypeFace to use.
+     * <p>
+     * Default is Typeface.DEFAULT
+     */
+    public void setTypeFace(Typeface typeFace) {
+        this.typeFace = typeFace;
+    }
 
-	@Override
-	public boolean rendersContent() {
-		return true;
-	}
+    @Override
+    public boolean rendersContent() {
+        return true;
+    }
 
     private void readNode(Object node, Table table) {
 
         // We can't handle plain content nodes within the table.
-        if ( node instanceof TagNode ) {
+        if (node instanceof TagNode) {
 
             TagNode tagNode = (TagNode) node;
 
@@ -125,73 +120,73 @@ public class TableHandler extends TagNodeHandler {
 
     }
 
-	private Table getTable(TagNode node) {
+    private Table getTable(TagNode node) {
 
         String border = node.getAttributeByName("border");
 
         boolean drawBorder = !"0".equals(border);
 
-		Table result = new Table(drawBorder);
+        Table result = new Table(drawBorder);
 
-		readNode(node, result);
+        readNode(node, result);
 
-		return result;
-	}
+        return result;
+    }
 
-	private TextPaint getTextPaint() {
-		TextPaint textPaint = new TextPaint();
-		textPaint.setColor(this.textColor);
+    private TextPaint getTextPaint() {
+        TextPaint textPaint = new TextPaint();
+        textPaint.setColor(this.textColor);
         textPaint.linkColor = this.textColor;
-		textPaint.setAntiAlias(true);
-		textPaint.setTextSize(this.textSize);
-		textPaint.setTypeface(this.typeFace);
+        textPaint.setAntiAlias(true);
+        textPaint.setTextSize(this.textSize);
+        textPaint.setTypeface(this.typeFace);
 
-		return textPaint;
-	}
+        return textPaint;
+    }
 
-	private int calculateRowHeight(List<Spanned> row) {
+    private int calculateRowHeight(List<Spanned> row) {
 
-		if (row.size() == 0) {
-			return 0;
-		}
+        if (row.size() == 0) {
+            return 0;
+        }
 
-		TextPaint textPaint = getTextPaint();
+        TextPaint textPaint = getTextPaint();
 
-		int columnWidth = tableWidth / row.size();
+        int columnWidth = tableWidth / row.size();
 
-		int rowHeight = 0;
+        int rowHeight = 0;
 
-		for (Spanned cell : row) {
+        for (Spanned cell : row) {
 
-			StaticLayout layout = new StaticLayout(cell, textPaint, columnWidth
-					- 2 * PADDING, Alignment.ALIGN_NORMAL, 1f, 0f, true);
+            StaticLayout layout = new StaticLayout(cell, textPaint, columnWidth
+                    - 2 * PADDING, Alignment.ALIGN_NORMAL, 1f, 0f, true);
 
-			if (layout.getHeight() > rowHeight) {
-				rowHeight = layout.getHeight();
-			}
-		}
+            if (layout.getHeight() > rowHeight) {
+                rowHeight = layout.getHeight();
+            }
+        }
 
-		return rowHeight;
-	}
+        return rowHeight;
+    }
 
-	@Override
-	public void handleTagNode(TagNode node, SpannableStringBuilder builder,
-			int start, int end, SpanStack spanStack) {
+    @Override
+    public void handleTagNode(TagNode node, SpannableStringBuilder builder,
+                              int start, int end, SpanStack spanStack) {
 
-		Table table = getTable(node);
+        Table table = getTable(node);
 
-		for (int i = 0; i < table.getRows().size(); i++) {
+        for (int i = 0; i < table.getRows().size(); i++) {
 
-			List<Spanned> row = table.getRows().get(i);
-			builder.append("\uFFFC");
+            List<Spanned> row = table.getRows().get(i);
+            builder.append("\uFFFC");
 
-			TableRowDrawable drawable = new TableRowDrawable(row, table.isDrawBorder());
-			drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
-					drawable.getIntrinsicHeight());
+            TableRowDrawable drawable = new TableRowDrawable(row, table.isDrawBorder());
+            drawable.setBounds(0, 0, drawable.getIntrinsicWidth(),
+                    drawable.getIntrinsicHeight());
 
-			spanStack.pushSpan(new ImageSpan(drawable), start + i, builder.length());
+            spanStack.pushSpan(new ImageSpan(drawable), start + i, builder.length());
 
-		}
+        }
 
         /*
          We add an empty last row to work around a rendering issue where
@@ -200,111 +195,105 @@ public class TableHandler extends TagNodeHandler {
         builder.append("\uFFFC");
         Drawable drawable = new TableRowDrawable(new ArrayList<Spanned>(), table.isDrawBorder());
         drawable.setBounds(0, 0, tableWidth, 1);
-        builder.setSpan(new ImageSpan(drawable), builder.length() -1, builder.length(),
+        builder.setSpan(new ImageSpan(drawable), builder.length() - 1, builder.length(),
                 Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         /*
          Center the entire table
          */
-        builder.setSpan(new AlignmentSpan() {
-            @Override
-            public Alignment getAlignment() {
-                return Alignment.ALIGN_CENTER;
-            }
-        }, start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        builder.setSpan((AlignmentSpan) () -> Alignment.ALIGN_CENTER, start, builder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
         builder.append("\n");
-	}
+    }
 
-	/**
-	 * Drawable of the table, which does the actual rendering.
-	 * 
-	 * @author Alex Kuiper.
-	 * 
-	 */
-	private class TableRowDrawable extends Drawable {
+    /**
+     * Drawable of the table, which does the actual rendering.
+     *
+     * @author Alex Kuiper.
+     */
+    private class TableRowDrawable extends Drawable {
 
-		private List<Spanned> tableRow;
+        private final List<Spanned> tableRow;
 
-        private int rowHeight;
-        private boolean paintBorder;
+        private final int rowHeight;
+        private final boolean paintBorder;
 
-		public TableRowDrawable(List<Spanned> tableRow, boolean paintBorder) {
-			this.tableRow = tableRow;
+        public TableRowDrawable(List<Spanned> tableRow, boolean paintBorder) {
+            this.tableRow = tableRow;
             this.rowHeight = calculateRowHeight(tableRow);
             this.paintBorder = paintBorder;
-		}
+        }
 
-		@Override
-		public void draw(Canvas canvas) {
-			Paint paint = new Paint();
-			paint.setColor(textColor);
-			paint.setStyle(Style.STROKE);
+        @Override
+        public void draw(Canvas canvas) {
+            Paint paint = new Paint();
+            paint.setColor(textColor);
+            paint.setStyle(Style.STROKE);
 
-			int numberOfColumns = tableRow.size();
+            int numberOfColumns = tableRow.size();
 
-			if (numberOfColumns == 0) {
-				return;
-			}
+            if (numberOfColumns == 0) {
+                return;
+            }
 
-			int columnWidth = tableWidth / numberOfColumns;
+            int columnWidth = tableWidth / numberOfColumns;
 
-			int offset = 0;
+            int offset;
 
-			for (int i = 0; i < numberOfColumns; i++) {
+            for (int i = 0; i < numberOfColumns; i++) {
 
-				offset = i * columnWidth;
+                offset = i * columnWidth;
 
-                if ( paintBorder ) {
-				    // The rect is open at the bottom, so there's a single line
-				    // between rows.
-				    canvas.drawRect(offset, 0, offset + columnWidth, rowHeight,
-						paint);
+                if (paintBorder) {
+                    // The rect is open at the bottom, so there's a single line
+                    // between rows.
+                    canvas.drawRect(offset, 0, offset + columnWidth, rowHeight,
+                            paint);
                 }
 
-				StaticLayout layout = new StaticLayout(tableRow.get(i),
-						getTextPaint(), (columnWidth - 2 * PADDING),
-						Alignment.ALIGN_NORMAL, 1f, 0f, true);
+                StaticLayout layout = new StaticLayout(tableRow.get(i),
+                        getTextPaint(), (columnWidth - 2 * PADDING),
+                        Alignment.ALIGN_NORMAL, 1f, 0f, true);
 
-				canvas.translate(offset + PADDING, 0);
-				layout.draw(canvas);
-				canvas.translate(-1 * (offset + PADDING), 0);
+                canvas.translate(offset + PADDING, 0);
+                layout.draw(canvas);
+                canvas.translate(-1 * (offset + PADDING), 0);
 
-			}
-		}
+            }
+        }
 
-		@Override
-		public int getIntrinsicHeight() {
-			return rowHeight;
-		}
+        @Override
+        public int getIntrinsicHeight() {
+            return rowHeight;
+        }
 
-		@Override
-		public int getIntrinsicWidth() {
-			return tableWidth;
-		}
+        @Override
+        public int getIntrinsicWidth() {
+            return tableWidth;
+        }
 
-		@Override
-		public int getOpacity() {
-			return PixelFormat.OPAQUE;
-		}
+        @Override
+        public int getOpacity() {
+            return PixelFormat.OPAQUE;
+        }
 
-		@Override
-		public void setAlpha(int alpha) {
+        @Override
+        public void setAlpha(int alpha) {
 
-		}
+        }
 
-		@Override
-		public void setColorFilter(ColorFilter cf) {
+        @Override
+        public void setColorFilter(ColorFilter cf) {
 
-		}
-	}
+        }
+    }
 
-	private class Table {
+    private class Table {
 
-        private boolean drawBorder;
-        private List<List<Spanned>> content = new ArrayList<List<Spanned>>();
+        private final boolean drawBorder;
+        private final List<List<Spanned>> content = new ArrayList<List<Spanned>>();
 
-        private Table( boolean drawBorder ) {
+        private Table(boolean drawBorder) {
             this.drawBorder = drawBorder;
         }
 
@@ -312,25 +301,25 @@ public class TableHandler extends TagNodeHandler {
             return drawBorder;
         }
 
-		public void addRow() {
-			content.add(new ArrayList<Spanned>());
-		}
+        public void addRow() {
+            content.add(new ArrayList<>());
+        }
 
-		public List<Spanned> getBottomRow() {
-			return content.get(content.size() - 1);
-		}
+        public List<Spanned> getBottomRow() {
+            return content.get(content.size() - 1);
+        }
 
-		public List<List<Spanned>> getRows() {
-			return content;
-		}
+        public List<List<Spanned>> getRows() {
+            return content;
+        }
 
-		public void addCell(Spanned text) {
-			if (content.isEmpty()) {
-				throw new IllegalStateException("No rows added yet");
-			}
+        public void addCell(Spanned text) {
+            if (content.isEmpty()) {
+                throw new IllegalStateException("No rows added yet");
+            }
 
-			getBottomRow().add(text);
-		}
-	}
+            getBottomRow().add(text);
+        }
+    }
 
 }

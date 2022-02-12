@@ -2,21 +2,22 @@ package com.iammonk.htmlspanner.handlers.attributes;
 
 import android.text.SpannableStringBuilder;
 import android.util.Log;
+
 import com.iammonk.htmlspanner.SpanStack;
 import com.iammonk.htmlspanner.css.CSSCompiler;
-import com.iammonk.htmlspanner.style.Style;
 import com.iammonk.htmlspanner.handlers.StyledTextHandler;
+import com.iammonk.htmlspanner.style.Style;
+
 import org.htmlcleaner.TagNode;
 
 /**
  * Handler which parses style attributes and modifies the style accordingly.
  */
-public class StyleAttributeHandler extends WrappingStyleHandler  {
+public class StyleAttributeHandler extends WrappingStyleHandler {
 
     public StyleAttributeHandler(StyledTextHandler wrapHandler) {
         super(wrapHandler);
     }
-
 
     @Override
     public void handleTagNode(TagNode node, SpannableStringBuilder builder, int start, int end, Style useStyle,
@@ -24,7 +25,7 @@ public class StyleAttributeHandler extends WrappingStyleHandler  {
 
         String styleAttr = node.getAttributeByName("style");
 
-        if ( getSpanner().isAllowStyling() && styleAttr != null ) {
+        if (getSpanner().isAllowStyling() && styleAttr != null) {
             super.handleTagNode(node, builder, start, end,
                     parseStyleFromAttribute(useStyle, styleAttr),
                     spanStack);
@@ -38,31 +39,24 @@ public class StyleAttributeHandler extends WrappingStyleHandler  {
         Style style = baseStyle;
 
         String[] pairs = attribute.split(";");
-        for ( String pair: pairs ) {
+        for (String pair : pairs) {
 
             String[] keyVal = pair.split(":");
 
-            if ( keyVal.length != 2) {
-                Log.e("StyleAttributeHandler", "Could not parse attribute: " + attribute );
+            if (keyVal.length != 2) {
                 return baseStyle;
             }
 
-            String key =  keyVal[0].toLowerCase().trim();
+            String key = keyVal[0].toLowerCase().trim();
             String value = keyVal[1].toLowerCase().trim();
 
             CSSCompiler.StyleUpdater updater = CSSCompiler.getStyleUpdater(key, value);
 
-            if ( updater != null ) {
+            if (updater != null) {
                 style = updater.updateStyle(style, getSpanner());
             }
 
         }
-
         return style;
     }
-
-
-
-
-
 }

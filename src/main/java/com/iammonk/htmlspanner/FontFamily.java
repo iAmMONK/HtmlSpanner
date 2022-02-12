@@ -28,7 +28,7 @@ public class FontFamily {
 
 	private Typeface boldItalicTypeface;
 
-	private String name;
+	private final String name;
 
 	public FontFamily(String name, Typeface defaultTypeFace) {
 		this.name = name;
