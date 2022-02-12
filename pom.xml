@@ -2,7 +2,7 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>net.nightwhistler.htmlspanner</groupId>
+  <groupId>com.iammonk.htmlspanner</groupId>
   <artifactId>htmlspanner</artifactId>
   <version>0.5-SNAPSHOT</version>
   <packaging>jar</packaging>
@@ -44,15 +44,15 @@
     </dependency>
     
     <dependency>
-		<groupId>net.sourceforge.htmlcleaner</groupId>
+		<groupId>com.sourceforge.htmlcleaner</groupId>
 		<artifactId>htmlcleaner</artifactId>
-		<version>2.2</version>       
+		<version>2.26</version>
      </dependency>
 
     <dependency>
         <groupId>com.osbcp.cssparser</groupId>
         <artifactId>cssparser</artifactId>
-        <version>1.5</version>
+        <version>1.7</version>
     </dependency>
     
     <dependency>
