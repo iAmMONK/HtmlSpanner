@@ -95,8 +95,11 @@ are parsed by default, and the style of all built-in tags can be updated.
 
 ``implementation 'com.github.iAmMONK:HtmlSpanner:$spannerVersion'``
 
-3. In its simplest form, just call ``(new HtmlSpanner()).fromHtml()``(Java)
-   or ``HtmlSpanner().fromHtml()``(Kotlin) to get similar output as Android's ``Html.fromHtml()``.
+3. In its simplest form, just call 
+   ``(new HtmlSpanner()).fromHtml()`` for Java
+   or 
+   ``HtmlSpanner().fromHtml()`` for Kotlin
+   to get similar output as Android's ``Html.fromHtml()``.
 
 # HTMLCleaner Source
 
